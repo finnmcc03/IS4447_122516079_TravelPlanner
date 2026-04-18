@@ -1,98 +1,150 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { eq } from 'drizzle-orm';
+import { useRouter } from 'expo-router';
+import { useContext } from 'react';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import TripCard from '../../components/tripcard';
+import { db } from '../../db/client';
+import { activities, targets, trips } from '../../db/schema';
+import { AppContext } from '../_layout';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function TripsScreen() {
+  const context = useContext(AppContext);
+  const router = useRouter();
 
-export default function HomeScreen() {
+  if (!context) return null;
+
+  const { tripsList, activitiesList, locationsList, refreshData } = context;
+
+  // Get location name for a trip
+  const getLocationName = (locationId: number) => {
+    const location = locationsList.find((l) => l.id === locationId);
+    return location ? location.name : 'Unknown';
+  };
+
+  // Get activity counts for a trip
+  const getActivityCounts = (tripId: number) => {
+    const tripActivities = activitiesList.filter((a) => a.tripId === tripId);
+    const completed = tripActivities.filter((a) => a.completed === 1).length;
+    return { total: tripActivities.length, completed };
+  };
+
+  // Delete a trip and its related activities and targets
+  const handleDelete = (tripId: number) => {
+    Alert.alert('Delete Trip', 'Are you sure? This will delete the trip and all its activities.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await db.delete(activities).where(eq(activities.tripId, tripId));
+          await db.delete(targets).where(eq(targets.tripId, tripId));
+          await db.delete(trips).where(eq(trips.id, tripId));
+          await refreshData();
+        },
+      },
+    ]);
+  };
+
+  const handlePress = (tripId: number) => {
+    router.push(`/trip/${tripId}` as any);
+  };
+
+  const handleEdit = (tripId: number) => {
+    router.push(`/trip/edit/${tripId}` as any);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Hello World! hhh</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
+    <View style={styles.container}>
+      {tripsList.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyIcon}>✈️</Text>
+          <Text style={styles.emptyTitle}>No trips yet</Text>
+          <Text style={styles.emptySubtitle}>Tap the button below to plan your first adventure!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={tripsList}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => {
+            const { total, completed } = getActivityCounts(item.id);
+            return (
+              <TripCard
+                id={item.id}
+                name={item.name}
+                startDate={item.startDate}
+                endDate={item.endDate}
+                locationName={getLocationName(item.locationId)}
+                totalActivities={total}
+                completedActivities={completed}
+                onPress={handlePress}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+            );
+          }}
+        />
+      )}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Add trip button */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => router.push('/trip/add' as any)}
+      >
+        <Text style={styles.addButtonText}>+ New Trip</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F6FA',
   },
-  stepContainer: {
-    gap: 8,
+  list: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+  },
+  addButton: {
     position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: '#2980B9',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

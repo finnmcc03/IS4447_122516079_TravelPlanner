@@ -8,6 +8,9 @@
     "scheme": "travelplanner",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "googleApiKey": "AIzaSyDePpq5y0hJpJFo6vkcHnr3ZJK5AkeVb9k"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -38,7 +41,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

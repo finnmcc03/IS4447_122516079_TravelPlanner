@@ -222,168 +222,157 @@ export default function MapScreen() {
         ))}
       </ScrollView>
 
-      {/* Claude - "help me implement Google maps visibility using the same API as location search" */}
-      {/* Map */}
-      {filteredActivities.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No activities found</Text>
-          <Text style={styles.emptySubtitle}>
-          </Text>
-        </View>
-      ) : (
-        <>
-          <MapView
-            ref={mapRef}
-            style={styles.map}
-            initialRegion={initialRegion}
-            onRegionChangeComplete={(region) => setCurrentRegion(region)}
-            zoomEnabled={true}
-            scrollEnabled={true}
-            rotateEnabled={true}
-            onPress={() => setSelectedActivity(null)}
-          >
-            {filteredActivities.map((activity) => (
-              <Marker
-                key={activity.id}
-                coordinate={{
+      {/* Map - always visible */}
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        initialRegion={initialRegion}
+        onRegionChangeComplete={(region) => setCurrentRegion(region)}
+        zoomEnabled={true}
+        scrollEnabled={true}
+        rotateEnabled={true}
+        onPress={() => setSelectedActivity(null)}
+      >
+        {filteredActivities.map((activity) => (
+          <Marker
+            key={activity.id}
+            coordinate={{
+              latitude: activity.latitude,
+              longitude: activity.longitude,
+            }}
+            pinColor={activity.categoryColour}
+            onPress={(e) => {
+              e.stopPropagation();
+              setSelectedActivity(activity);
+              mapRef.current?.animateToRegion(
+                {
                   latitude: activity.latitude,
                   longitude: activity.longitude,
-                }}
-                pinColor={activity.categoryColour}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  setSelectedActivity(activity);
-                  mapRef.current?.animateToRegion(
-                    {
-                      latitude: activity.latitude,
-                      longitude: activity.longitude,
-                      latitudeDelta: 0.005,
-                      longitudeDelta: 0.005,
-                    },
-                    500
-                  );
-                }}
-              />
-            ))}
-          </MapView>
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                },
+                500
+              );
+            }}
+          />
+        ))}
+      </MapView>
 
-          {/* Zoom Controls */}
-          <View style={styles.zoomControls}>
-            <TouchableOpacity
-              style={styles.zoomButton}
-              onPress={() => {
-                mapRef.current?.animateToRegion({
-                  ...currentRegion,
-                  latitudeDelta: currentRegion.latitudeDelta / 2,
-                  longitudeDelta: currentRegion.longitudeDelta / 2,
-                });
-              }}
+      {/* Zoom Controls */}
+      <View style={styles.zoomControls}>
+        <TouchableOpacity
+          style={styles.zoomButton}
+          onPress={() => {
+            mapRef.current?.animateToRegion({
+              ...currentRegion,
+              latitudeDelta: currentRegion.latitudeDelta / 2,
+              longitudeDelta: currentRegion.longitudeDelta / 2,
+            });
+          }}
+        >
+          <Text style={styles.zoomText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.zoomButton}
+          onPress={() => {
+            mapRef.current?.animateToRegion({
+              ...currentRegion,
+              latitudeDelta: currentRegion.latitudeDelta * 2,
+              longitudeDelta: currentRegion.longitudeDelta * 2,
+            });
+          }}
+        >
+          <Text style={styles.zoomText}>−</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Bottom Card */}
+      {selectedActivity && (
+        <View style={styles.bottomCard}>
+          <Pressable
+            style={styles.closeButton}
+            onPress={() => setSelectedActivity(null)}
+          >
+            <Text style={styles.closeText}>✕</Text>
+          </Pressable>
+
+          <Text style={styles.cardTitle}>{selectedActivity.name}</Text>
+          <Text style={styles.cardTrip}>{selectedActivity.tripName}</Text>
+          <Text style={styles.cardLocation}>{selectedActivity.locationName}</Text>
+
+          <View style={styles.cardRow}>
+            <View
+              style={[
+                styles.cardBadge,
+                { backgroundColor: selectedActivity.categoryColour + '20' },
+              ]}
             >
-              <Text style={styles.zoomText}>+</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.zoomButton}
-              onPress={() => {
-                mapRef.current?.animateToRegion({
-                  ...currentRegion,
-                  latitudeDelta: currentRegion.latitudeDelta * 2,
-                  longitudeDelta: currentRegion.longitudeDelta * 2,
-                });
-              }}
-            >
-              <Text style={styles.zoomText}>−</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Bottom Card */}
-          {selectedActivity && (
-            <View style={styles.bottomCard}>
-              <Pressable
-                style={styles.closeButton}
-                onPress={() => setSelectedActivity(null)}
-              >
-                <Text style={styles.closeText}>✕</Text>
-              </Pressable>
-
-              <Text style={styles.cardTitle}>{selectedActivity.name}</Text>
-              <Text style={styles.cardTrip}>{selectedActivity.tripName}</Text>
-              <Text style={styles.cardLocation}>{selectedActivity.locationName}</Text>
-
-              <View style={styles.cardRow}>
-                <View
-                  style={[
-                    styles.cardBadge,
-                    { backgroundColor: selectedActivity.categoryColour + '20' },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.cardBadgeText,
-                      { color: selectedActivity.categoryColour },
-                    ]}
-                  >
-                    {selectedActivity.categoryName}
-                  </Text>
-                </View>
-                <Text style={styles.cardDuration}>{selectedActivity.duration}h</Text>
-                <Text style={styles.cardDay}>Day {selectedActivity.dayNumber}</Text>
-              </View>
-
-              {selectedActivity.notes ? (
-                <Text style={styles.cardNotes}>{selectedActivity.notes}</Text>
-              ) : null}
-
-              <View
+              <Text
                 style={[
-                  styles.cardStatus,
-                  {
-                    backgroundColor:
-                      selectedActivity.completed === 1 ? '#E8F8F5' : '#FEF5E7',
-                  },
+                  styles.cardBadgeText,
+                  { color: selectedActivity.categoryColour },
                 ]}
               >
-                <Text
+                {selectedActivity.categoryName}
+              </Text>
+            </View>
+            <Text style={styles.cardDuration}>{selectedActivity.duration}h</Text>
+            <Text style={styles.cardDay}>Day {selectedActivity.dayNumber}</Text>
+          </View>
+
+          {selectedActivity.notes ? (
+            <Text style={styles.cardNotes}>{selectedActivity.notes}</Text>
+          ) : null}
+
+          <View
+            style={[
+              styles.cardStatus,
+              {
+                backgroundColor:
+                  selectedActivity.completed === 1 ? '#E8F8F5' : '#FEF5E7',
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.cardStatusText,
+                {
+                  color:
+                    selectedActivity.completed === 1 ? '#27AE60' : '#E67E22',
+                },
+              ]}
+            >
+              {selectedActivity.completed === 1
+                ? 'Completed'
+                : 'Not completed'}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Legend */}
+      {!selectedActivity && filteredActivities.length > 0 && (
+        <View style={styles.legend}>
+          {categoriesList.map((cat) => {
+            const count = filteredActivities.filter(
+              (a) => a.categoryId === cat.id
+            ).length;
+            if (count === 0) return null;
+            return (
+              <View key={cat.id} style={styles.legendItem}>
+                <View
                   style={[
-                    styles.cardStatusText,
-                    {
-                      color:
-                        selectedActivity.completed === 1 ? '#27AE60' : '#E67E22',
-                    },
+                    styles.legendDot,
+                    { backgroundColor: cat.colour },
                   ]}
-                >
-                  {selectedActivity.completed === 1
-                    ? 'Completed'
-                    : 'Not completed'}
+                />
+                <Text style={styles.legendText}>
+                  {cat.name} ({count})
                 </Text>
               </View>
-            </View>
-          )}
-
-          {/* Legend */}
-          {!selectedActivity && (
-            <View style={styles.legend}>
-              {categoriesList.map((cat) => {
-                const count = filteredActivities.filter(
-                  (a) => a.categoryId === cat.id
-                ).length;
-                if (count === 0) return null;
-                return (
-                  <View key={cat.id} style={styles.legendItem}>
-                    <View
-                      style={[
-                        styles.legendDot,
-                        { backgroundColor: cat.colour },
-                      ]}
-                    />
-                    <Text style={styles.legendText}>
-                      {cat.name} ({count})
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </>
+            );
+          })}
+        </View>
       )}
     </View>
   );
@@ -451,28 +440,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F6FA',
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
   },
   zoomControls: {
     position: 'absolute',

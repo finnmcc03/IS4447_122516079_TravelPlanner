@@ -1,19 +1,54 @@
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import TripCard from '../../components/tripcard';
 import { db } from '../../db/client';
 import { activities, targets, trips } from '../../db/schema';
 import { AppContext } from '../_layout';
 
+type FilterOption = 'current_upcoming' | 'current' | 'upcoming' | 'past' | 'all';
+
+const filterLabels: Record<FilterOption, string> = {
+  current_upcoming: 'Current & Upcoming',
+  current: 'Current',
+  upcoming: 'Upcoming',
+  past: 'Past',
+  all: 'All Trips',
+};
+
 export default function TripsScreen() {
   const context = useContext(AppContext);
   const router = useRouter();
 
+  const [filter, setFilter] = useState<FilterOption>('current_upcoming');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+
   if (!context) return null;
 
   const { tripsList, activitiesList, locationsList, refreshData } = context;
+
+  // Parse DD-MM-YYYY to Date object
+  const parseDate = (dateStr: string) => {
+    const [day, month, year] = dateStr.split('-');
+    return new Date(`${year}-${month}-${day}`);
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const filteredTrips = tripsList.filter((trip) => {
+    const start = parseDate(trip.startDate);
+    const end = parseDate(trip.endDate);
+    switch (filter) {
+      case 'current': return start <= today && end >= today;
+      case 'upcoming': return start > today;
+      case 'past': return end < today;
+      case 'current_upcoming': return end >= today;
+      case 'all': return true;
+      default: return true;
+    }
+  });
 
   // Get location name for a trip
   const getLocationName = (locationId: number) => {
@@ -55,7 +90,36 @@ export default function TripsScreen() {
 
   return (
     <View style={styles.container}>
-      {tripsList.length === 0 ? (
+
+      {/* Filter Bar */}
+      <View style={styles.filterBar}>
+        <Text style={styles.filterLabel}>Showing: {filterLabels[filter]}</Text>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setShowFilterDropdown(!showFilterDropdown)}
+        >
+          <Text style={styles.filterButtonText}>Filter ▾</Text>
+        </TouchableOpacity>
+      </View>
+
+      {showFilterDropdown && (
+        <View style={styles.dropdown}>
+          {(Object.keys(filterLabels) as FilterOption[]).map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={[styles.dropdownItem, filter === option && styles.dropdownItemSelected]}
+              onPress={() => { setFilter(option); setShowFilterDropdown(false); }}
+            >
+              <Text style={[styles.dropdownItemText, filter === option && styles.dropdownItemTextSelected]}>
+                {filterLabels[option]}
+              </Text>
+              {filter === option && <Text style={styles.checkIcon}>✓</Text>}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {filteredTrips.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>✈️</Text>
           <Text style={styles.emptyTitle}>No trips yet</Text>
@@ -63,7 +127,7 @@ export default function TripsScreen() {
         </View>
       ) : (
         <FlatList
-          data={tripsList}
+          data={filteredTrips}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => {
@@ -147,4 +211,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  filterBar: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+  paddingVertical: 10,
+  backgroundColor: '#fff',
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee',
+},
+  filterLabel: { fontSize: 14, color: '#666' },
+  filterButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    backgroundColor: '#EBF5FB',
+    borderRadius: 8,
+  },
+  filterButtonText: { color: '#2980B9', fontWeight: '600', fontSize: 14 },
+  dropdown: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    elevation: 3,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dropdownItemSelected: { backgroundColor: '#EBF5FB' },
+  dropdownItemText: { fontSize: 15, color: '#333' },
+  dropdownItemTextSelected: { color: '#2980B9', fontWeight: '600' },
+  checkIcon: { color: '#2980B9', fontSize: 16, fontWeight: 'bold' },
 });

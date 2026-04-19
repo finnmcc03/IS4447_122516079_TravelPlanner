@@ -255,7 +255,7 @@ export default function EditActivityScreen() {
 
         {selectedPlace && (
           <View style={styles.selectedPlace}>
-            <Text style={styles.selectedPlaceText}>📍 {selectedPlace.name}</Text>
+            <Text style={styles.selectedPlaceText}>{selectedPlace.name}</Text>
             <TouchableOpacity onPress={() => setSelectedPlace(null)}>
               <Text style={styles.removePlace}>✕ Remove</Text>
             </TouchableOpacity>

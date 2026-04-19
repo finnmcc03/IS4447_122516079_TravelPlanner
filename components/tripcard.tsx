@@ -11,6 +11,7 @@ type TripCardProps = {
   onPress: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  theme?: any;
 };
 
 export default function TripCard({
@@ -24,6 +25,7 @@ export default function TripCard({
   onPress,
   onEdit,
   onDelete,
+  theme,
 }: TripCardProps) {
   const progress = totalActivities > 0 ? completedActivities / totalActivities : 0;
 
@@ -35,39 +37,39 @@ export default function TripCard({
   const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={() => onPress(id)}>
+    <TouchableOpacity style={[styles.card, { backgroundColor: theme?.card || '#fff' }]} onPress={() => onPress(id)}>
       <View style={styles.header}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.days}>{days} days</Text>
+        <Text style={[styles.name, { color: theme?.text || '#333' }]}>{name}</Text>
+        <Text style={[styles.days, { color: theme?.primary || '#2980B9', backgroundColor: theme?.primaryLight || '#EBF5FB' }]}>{days} days</Text>
       </View>
 
-      <Text style={styles.location}>{locationName}</Text>
-      <Text style={styles.dates}>
+      <Text style={[styles.location, { color: theme?.textSecondary || '#666' }]}>{locationName}</Text>
+      <Text style={[styles.dates, { color: theme?.textMuted || '#999' }]}>
         {startDate} → {endDate}
       </Text>
 
       {/* Progress bar */}
       <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
+        <View style={[styles.progressBar, { backgroundColor: theme?.border || '#EEE' }]}>
           <View
             style={[
               styles.progressFill,
               {
                 width: `${progress * 100}%`,
-                backgroundColor: progress === 1 ? '#27AE60' : '#2980B9',
+                backgroundColor: progress === 1 ? '#27AE60' : theme?.primary || '#2980B9',
               },
             ]}
           />
         </View>
-        <Text style={styles.progressText}>
+        <Text style={[styles.progressText, { color: theme?.textSecondary || '#666' }]}>
           {completedActivities}/{totalActivities} activities
         </Text>
       </View>
 
       {/* Action buttons */}
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.editButton} onPress={() => onEdit(id)}>
-          <Text style={styles.editText}>Edit</Text>
+        <TouchableOpacity style={[styles.editButton, { backgroundColor: theme?.primaryLight || '#EBF5FB' }]} onPress={() => onEdit(id)}>
+          <Text style={[styles.editText, { color: theme?.primary || '#2980B9' }]}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(id)}>
           <Text style={styles.deleteText}>Delete</Text>

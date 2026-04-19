@@ -14,7 +14,7 @@ export default function TripDetailScreen() {
 
   if (!context) return null;
 
-  const { tripsList, activitiesList, categoriesList, locationsList, refreshData } = context;
+  const { tripsList, activitiesList, categoriesList, locationsList, refreshData, theme } = context;
 
   const trip = tripsList.find((t) => t.id === tripId);
   if (!trip) return null;
@@ -87,9 +87,9 @@ export default function TripDetailScreen() {
   const totalCount = tripActivities.length;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.headerBackground }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
@@ -122,15 +122,16 @@ export default function TripDetailScreen() {
       <View style={styles.content}>
         {days.map((day) => (
           <View key={day.dayNumber} style={styles.daySection}>
-            <Text style={styles.dayTitle}>Day {day.dayNumber}</Text>
+            <Text style={[styles.dayTitle, { color: theme.text }]}>Day {day.dayNumber}</Text>
 
             {day.activities.map((activity) => (
-              <View key={activity.id} style={styles.activityCard}>
+              <View key={activity.id} style={[styles.activityCard, { backgroundColor: theme.card }]}>
                 <View style={styles.activityHeader}>
                   {/* Checkbox */}
                   <TouchableOpacity
                     style={[
                       styles.checkbox,
+                      { borderColor: theme.border },
                       activity.completed === 1 && styles.checkboxChecked,
                     ]}
                     onPress={() => toggleCompleted(activity.id, activity.completed)}
@@ -142,7 +143,8 @@ export default function TripDetailScreen() {
                     <Text
                       style={[
                         styles.activityName,
-                        activity.completed === 1 && styles.activityNameCompleted,
+                        { color: theme.text },
+                        activity.completed === 1 && { textDecorationLine: 'line-through', color: theme.textMuted },
                       ]}
                     >
                       {activity.name}
@@ -163,15 +165,15 @@ export default function TripDetailScreen() {
                           {getCategoryName(activity.categoryId)}
                         </Text>
                       </View>
-                      <Text style={styles.duration}>{activity.duration}h</Text>
+                      <Text style={[styles.duration, { color: theme.textSecondary }]}>{activity.duration}h</Text>
                     </View>
                     {getActivityLocation(activity.locationId) && (
-                      <Text style={styles.activityLocation}>
+                      <Text style={[styles.activityLocation, { color: theme.textMuted }]}>
                         {getActivityLocation(activity.locationId)}
                       </Text>
                     )}
                     {activity.notes ? (
-                      <Text style={styles.activityNotes}>{activity.notes}</Text>
+                      <Text style={[styles.activityNotes, { color: theme.textMuted }]}>{activity.notes}</Text>
                     ) : null}
                   </View>
                 </View>
@@ -179,12 +181,12 @@ export default function TripDetailScreen() {
                 {/* Action buttons */}
                 <View style={styles.activityActions}>
                   <TouchableOpacity
-                    style={styles.editButton}
+                    style={[styles.editButton, { backgroundColor: theme.primaryLight }]}
                     onPress={() =>
                       router.push(`/activity/edit/${activity.id}?tripId=${tripId}` as any)
                     }
                   >
-                    <Text style={styles.editText}>Edit</Text>
+                    <Text style={[styles.editText, { color: theme.primary }]}>Edit</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.deleteButton}
@@ -197,18 +199,18 @@ export default function TripDetailScreen() {
             ))}
 
             {day.activities.length === 0 && (
-              <Text style={styles.noActivities}>No activities planned</Text>
+              <Text style={[styles.noActivities, { color: theme.textMuted }]}>No activities planned</Text>
             )}
           </View>
         ))}
 
         {/* Add Activity Card */}
         <TouchableOpacity
-          style={styles.addActivityCard}
+          style={[styles.addActivityCard, { backgroundColor: theme.card, borderColor: theme.border }]}
           onPress={() => router.push(`/activity/add?tripId=${tripId}` as any)}
         >
-          <Text style={styles.addActivityIcon}>+</Text>
-          <Text style={styles.addActivityText}>Add Activity</Text>
+          <Text style={[styles.addActivityIcon, { color: theme.textMuted }]}>+</Text>
+          <Text style={[styles.addActivityText, { color: theme.textMuted }]}>Add Activity</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

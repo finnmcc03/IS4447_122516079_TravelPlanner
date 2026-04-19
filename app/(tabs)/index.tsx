@@ -26,7 +26,7 @@ export default function TripsScreen() {
 
   if (!context) return null;
 
-  const { tripsList, activitiesList, locationsList, refreshData } = context;
+  const { tripsList, activitiesList, locationsList, refreshData, theme } = context;
 
   // Parse DD-MM-YYYY to Date object
   const parseDate = (dateStr: string) => {
@@ -89,31 +89,31 @@ export default function TripsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
       {/* Filter Bar */}
-      <View style={styles.filterBar}>
-        <Text style={styles.filterLabel}>Showing: {filterLabels[filter]}</Text>
+      <View style={[styles.filterBar, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
+        <Text style={[styles.filterLabel, { color: theme.textSecondary }]}>Showing: {filterLabels[filter]}</Text>
         <TouchableOpacity
-          style={styles.filterButton}
+          style={[styles.filterButton, { backgroundColor: theme.primaryLight }]}
           onPress={() => setShowFilterDropdown(!showFilterDropdown)}
         >
-          <Text style={styles.filterButtonText}>Filter ▾</Text>
+          <Text style={[styles.filterButtonText, { color: theme.primary }]}>Filter ▾</Text>
         </TouchableOpacity>
       </View>
 
       {showFilterDropdown && (
-        <View style={styles.dropdown}>
+        <View style={[styles.dropdown, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
           {(Object.keys(filterLabels) as FilterOption[]).map((option) => (
             <TouchableOpacity
               key={option}
-              style={[styles.dropdownItem, filter === option && styles.dropdownItemSelected]}
+              style={[styles.dropdownItem, { borderBottomColor: theme.border }, filter === option && { backgroundColor: theme.primaryLight }]}
               onPress={() => { setFilter(option); setShowFilterDropdown(false); }}
             >
-              <Text style={[styles.dropdownItemText, filter === option && styles.dropdownItemTextSelected]}>
+              <Text style={[styles.dropdownItemText, { color: theme.text }, filter === option && { color: theme.primary, fontWeight: '600' }]}>
                 {filterLabels[option]}
               </Text>
-              {filter === option && <Text style={styles.checkIcon}>✓</Text>}
+              {filter === option && <Text style={[styles.checkIcon, { color: theme.primary }]}>✓</Text>}
             </TouchableOpacity>
           ))}
         </View>
@@ -121,8 +121,8 @@ export default function TripsScreen() {
 
       {filteredTrips.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No trips yet</Text>
-          <Text style={styles.emptySubtitle}>Tap the button below to plan your first adventure!</Text>
+          <Text style={[styles.emptyTitle, { color: theme.text }]}>No trips yet</Text>
+          <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>Tap the button below to plan your first adventure!</Text>
         </View>
       ) : (
         <FlatList
@@ -143,6 +143,7 @@ export default function TripsScreen() {
                 onPress={handlePress}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                theme={theme}
               />
             );
           }}
@@ -151,7 +152,7 @@ export default function TripsScreen() {
 
       {/* Add trip button */}
       <TouchableOpacity
-        style={styles.addButton}
+        style={[styles.addButton, { backgroundColor: theme.primary }]}
         onPress={() => router.push('/trip/add' as any)}
       >
         <Text style={styles.addButtonText}>+ New Trip</Text>

@@ -1,3 +1,6 @@
+import { eq } from 'drizzle-orm';
+import Constants from 'expo-constants';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useRef, useState } from 'react';
 import {
   Alert,
@@ -8,14 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Calendar } from 'react-native-calendars';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import Constants from 'expo-constants';
-import { AppContext } from '../../_layout';
 import { db } from '../../../db/client';
-import { trips, locations } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { locations, trips } from '../../../db/schema';
+import { AppContext } from '../../_layout';
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey || '';
 
@@ -27,7 +27,7 @@ export default function EditTripScreen() {
   const tripId = Number(id);
 
   if (!context) return null;
-  const { tripsList, locationsList, refreshData } = context;
+  const { tripsList, locationsList, refreshData, userId, theme } = context;
 
   const trip = tripsList.find((t) => t.id === tripId);
   if (!trip) return null;
@@ -93,7 +93,7 @@ export default function EditTripScreen() {
           name: selectedPlace.name,
           latitude: selectedPlace.lat,
           longitude: selectedPlace.lng,
-          userId: 1,
+          userId: userId,
         }).returning();
         locationId = locationResult[0].id;
       }
@@ -118,11 +118,11 @@ export default function EditTripScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
       nestedScrollEnabled={true}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.headerBackground }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
@@ -130,25 +130,24 @@ export default function EditTripScreen() {
       </View>
 
       <View style={styles.form}>
-        {/* Trip Name */}
-        <Text style={styles.label}>Trip Name</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Trip Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
           placeholder="e.g. Paris Weekend"
+          placeholderTextColor={theme.textMuted}
           value={name}
           onChangeText={setName}
         />
 
-        {/* Start Date */}
-        <Text style={styles.label}>Start Date</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Start Date</Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
           onPress={() => {
             setShowStartCalendar(!showStartCalendar);
             setShowEndCalendar(false);
           }}
         >
-          <Text style={startDate ? styles.dateText : styles.placeholderText}>
+          <Text style={startDate ? [styles.dateText, { color: theme.text }] : [styles.placeholderText, { color: theme.textMuted }]}>
             {startDate || 'Select start date'}
           </Text>
         </TouchableOpacity>
@@ -167,21 +166,23 @@ export default function EditTripScreen() {
             }}
             markedDates={
               startDate
-                ? { [toCalendarDate(startDate)]: { selected: true, selectedColor: '#2980B9' } }
+                ? { [toCalendarDate(startDate)]: { selected: true, selectedColor: theme.primary } }
                 : {}
             }
             theme={{
-              todayTextColor: '#2980B9',
-              arrowColor: '#2980B9',
+              todayTextColor: theme.primary,
+              arrowColor: theme.primary,
+              calendarBackground: theme.card,
+              dayTextColor: theme.text,
+              monthTextColor: theme.text,
             }}
-            style={styles.calendar}
+            style={[styles.calendar, { backgroundColor: theme.card }]}
           />
         )}
 
-        {/* End Date */}
-        <Text style={styles.label}>End Date</Text>
+        <Text style={[styles.label, { color: theme.text }]}>End Date</Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
           onPress={() => {
             if (!startDate) {
               Alert.alert('Error', 'Please select a start date first.');
@@ -191,7 +192,7 @@ export default function EditTripScreen() {
             setShowStartCalendar(false);
           }}
         >
-          <Text style={endDate ? styles.dateText : styles.placeholderText}>
+          <Text style={endDate ? [styles.dateText, { color: theme.text }] : [styles.placeholderText, { color: theme.textMuted }]}>
             {endDate || 'Select end date'}
           </Text>
         </TouchableOpacity>
@@ -210,19 +211,21 @@ export default function EditTripScreen() {
             minDate={toCalendarDate(startDate)}
             markedDates={
               endDate
-                ? { [toCalendarDate(endDate)]: { selected: true, selectedColor: '#2980B9' } }
+                ? { [toCalendarDate(endDate)]: { selected: true, selectedColor: theme.primary } }
                 : {}
             }
             theme={{
-              todayTextColor: '#2980B9',
-              arrowColor: '#2980B9',
+              todayTextColor: theme.primary,
+              arrowColor: theme.primary,
+              calendarBackground: theme.card,
+              dayTextColor: theme.text,
+              monthTextColor: theme.text,
             }}
-            style={styles.calendar}
+            style={[styles.calendar, { backgroundColor: theme.card }]}
           />
         )}
 
-        {/* Location Search */}
-        <Text style={styles.label}>Location</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Location</Text>
         <GooglePlacesAutocomplete
           ref={placesRef}
           placeholder="Search for a city..."
@@ -247,11 +250,11 @@ export default function EditTripScreen() {
           listViewDisplayed="auto"
           keyboardShouldPersistTaps="handled"
           styles={{
-            textInput: styles.input,
+            textInput: [styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }],
             container: { flex: 0 },
-            listView: styles.predictionsContainer,
+            listView: [styles.predictionsContainer, { backgroundColor: theme.card, borderColor: theme.border }],
             row: styles.predictionItem,
-            description: styles.predictionText,
+            description: [styles.predictionText, { color: theme.text }],
           }}
           enablePoweredByContainer={false}
         />
@@ -262,8 +265,7 @@ export default function EditTripScreen() {
           </View>
         )}
 
-        {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
       </View>

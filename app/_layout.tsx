@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 import LoginScreen from '../components/loginscreen';
 import RegisterScreen from '../components/registerscreen';
+import { Theme, getTheme } from '../constants/theme';
 import { db } from '../db/client';
 import { activities, categories, locations, targets, trips } from '../db/schema';
 import { seedDatabase } from '../db/seed';
@@ -56,6 +57,9 @@ export type Target = {
 // Context type
 type AppContextType = {
   userId: number;
+  darkMode: boolean;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  theme: Theme;
   tripsList: Trip[];
   setTripsList: React.Dispatch<React.SetStateAction<Trip[]>>;
   categoriesList: Category[];
@@ -75,11 +79,14 @@ export const AppContext = createContext<AppContextType | null>(null);
 export default function RootLayout() {
   const [userId, setUserId] = useState<number | null>(null);
   const [showRegister, setShowRegister] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const [tripsList, setTripsList] = useState<Trip[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
   const [locationsList, setLocationsList] = useState<Location[]>([]);
   const [activitiesList, setActivitiesList] = useState<Activity[]>([]);
   const [targetsList, setTargetsList] = useState<Target[]>([]);
+
+  const theme = getTheme(darkMode);
 
   // Load all data from database for the logged-in user
   const refreshData = async () => {
@@ -91,7 +98,6 @@ export default function RootLayout() {
     const allActivities = await db.select().from(activities);
     const allTargets = await db.select().from(targets);
 
-    // Filter by userId
     setTripsList((allTrips as Trip[]).filter((t) => t.userId === userId));
     setCategoriesList((allCategories as Category[]).filter((c) => c.userId === userId));
     setLocationsList((allLocations as Location[]).filter((l) => l.userId === userId));
@@ -117,7 +123,6 @@ export default function RootLayout() {
     setUserId(id);
   };
 
-  // Load data when userId changes
   useEffect(() => {
     if (userId) {
       const init = async () => {
@@ -128,7 +133,6 @@ export default function RootLayout() {
     }
   }, [userId]);
 
-  // Not logged in - show login or register
   if (!userId) {
     if (showRegister) {
       return (
@@ -146,11 +150,13 @@ export default function RootLayout() {
     );
   }
 
-  // Logged in - show app
   return (
     <AppContext.Provider
       value={{
         userId,
+        darkMode,
+        setDarkMode,
+        theme,
         tripsList,
         setTripsList,
         categoriesList,

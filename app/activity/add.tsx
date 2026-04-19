@@ -36,7 +36,7 @@ export default function AddActivityScreen() {
   } | null>(null);
 
   if (!context) return null;
-  const { tripsList, categoriesList, refreshData, userId } = context;
+  const { tripsList, categoriesList, refreshData, userId, theme } = context;
 
   const trip = tripsList.find((t) => t.id === tripIdNum);
   if (!trip) return null;
@@ -98,11 +98,11 @@ export default function AddActivityScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
       nestedScrollEnabled={true}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.headerBackground }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
@@ -111,23 +111,23 @@ export default function AddActivityScreen() {
       </View>
 
       <View style={styles.form}>
-        {/* Activity Name */}
-        <Text style={styles.label}>Activity Name</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Activity Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
           placeholder="e.g. Visit Eiffel Tower"
+          placeholderTextColor={theme.textMuted}
           value={name}
           onChangeText={setName}
         />
 
-        {/* Day Number */}
-        <Text style={styles.label}>Day</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Day</Text>
         <View style={styles.dayPicker}>
           {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => (
             <TouchableOpacity
               key={day}
               style={[
                 styles.dayOption,
+                { backgroundColor: theme.card, borderColor: theme.border },
                 dayNumber === day && styles.dayOptionSelected,
               ]}
               onPress={() => setDayNumber(day)}
@@ -135,6 +135,7 @@ export default function AddActivityScreen() {
               <Text
                 style={[
                   styles.dayOptionText,
+                  { color: theme.text },
                   dayNumber === day && styles.dayOptionTextSelected,
                 ]}
               >
@@ -144,18 +145,17 @@ export default function AddActivityScreen() {
           ))}
         </View>
 
-        {/* Duration */}
-        <Text style={styles.label}>Duration (hours)</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Duration (hours)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
           placeholder="e.g. 3"
+          placeholderTextColor={theme.textMuted}
           value={duration}
           onChangeText={setDuration}
           keyboardType="numeric"
         />
 
-        {/* Category */}
-        <Text style={styles.label}>Category</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Category</Text>
         <View style={styles.categoryPicker}>
           {categoriesList.map((cat) => (
             <TouchableOpacity
@@ -164,9 +164,9 @@ export default function AddActivityScreen() {
                 styles.categoryOption,
                 {
                   backgroundColor:
-                    selectedCategoryId === cat.id ? cat.colour + '30' : '#fff',
+                    selectedCategoryId === cat.id ? cat.colour + '30' : theme.card,
                   borderColor:
-                    selectedCategoryId === cat.id ? cat.colour : '#ddd',
+                    selectedCategoryId === cat.id ? cat.colour : theme.border,
                 },
               ]}
               onPress={() => setSelectedCategoryId(cat.id)}
@@ -177,6 +177,7 @@ export default function AddActivityScreen() {
               <Text
                 style={[
                   styles.categoryOptionText,
+                  { color: theme.text },
                   selectedCategoryId === cat.id && { color: cat.colour },
                 ]}
               >
@@ -186,19 +187,18 @@ export default function AddActivityScreen() {
           ))}
         </View>
 
-        {/* Notes */}
-        <Text style={styles.label}>Notes (optional)</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Notes (optional)</Text>
         <TextInput
-          style={[styles.input, styles.notesInput]}
+          style={[styles.input, styles.notesInput, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
           placeholder="Any extra details..."
+          placeholderTextColor={theme.textMuted}
           value={notes}
           onChangeText={setNotes}
           multiline
           numberOfLines={3}
         />
 
-        {/* Location Search */}
-        <Text style={styles.label}>Location (optional)</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Location (optional)</Text>
         <GooglePlacesAutocomplete
           ref={placesRef}
           placeholder="Search for a place..."
@@ -219,11 +219,11 @@ export default function AddActivityScreen() {
           listViewDisplayed="auto"
           keyboardShouldPersistTaps="handled"
           styles={{
-            textInput: styles.input,
+            textInput: [styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }],
             container: { flex: 0 },
-            listView: styles.predictionsContainer,
+            listView: [styles.predictionsContainer, { backgroundColor: theme.card, borderColor: theme.border }],
             row: styles.predictionItem,
-            description: styles.predictionText,
+            description: [styles.predictionText, { color: theme.text }],
           }}
           enablePoweredByContainer={false}
         />
@@ -234,8 +234,7 @@ export default function AddActivityScreen() {
           </View>
         )}
 
-        {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Activity</Text>
         </TouchableOpacity>
       </View>

@@ -1,24 +1,29 @@
 import { Tabs } from 'expo-router';
+import { useContext } from 'react';
 import { Text } from 'react-native';
+import { AppContext } from '../_layout';
 
 export default function TabLayout() {
+  const context = useContext(AppContext);
+  const theme = context?.theme;
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#2980B9',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: theme?.primary || '#2980B9',
+        tabBarInactiveTintColor: theme?.textMuted || '#999',
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: theme?.tabBar || '#fff',
           borderTopWidth: 1,
-          borderTopColor: '#eee',
+          borderTopColor: theme?.tabBarBorder || '#eee',
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
         },
         headerStyle: {
-          backgroundColor: '#2980B9',
+          backgroundColor: theme?.headerBackground || '#2980B9',
         },
-        headerTintColor: '#fff',
+        headerTintColor: theme?.headerText || '#fff',
         headerTitleStyle: {
           fontWeight: 'bold',
           fontSize: 20,
@@ -47,7 +52,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="settings"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}></Text>,

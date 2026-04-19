@@ -38,7 +38,7 @@ export default function AddTripScreen() {
   } | null>(null);
 
   if (!context) return null;
-  const { refreshData, userId } = context;
+  const { refreshData, userId, theme } = context;
 
   // Convert YYYY-MM-DD (calendar format) to DD-MM-YYYY (storage format)
   const toDisplayDate = (calendarDate: string) => {
@@ -99,12 +99,12 @@ export default function AddTripScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
       nestedScrollEnabled={true}
       keyboardDismissMode='on-drag'
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.headerBackground }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
@@ -112,25 +112,24 @@ export default function AddTripScreen() {
       </View>
 
       <View style={styles.form}>
-        {/* Trip Name */}
-        <Text style={styles.label}>Trip Name</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Trip Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
           placeholder="e.g. Paris Weekend"
+          placeholderTextColor={theme.textMuted}
           value={name}
           onChangeText={setName}
         />
 
-        {/* Start Date */}
-        <Text style={styles.label}>Start Date</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Start Date</Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
           onPress={() => {
             setShowStartCalendar(!showStartCalendar);
             setShowEndCalendar(false);
           }}
         >
-          <Text style={startDate ? styles.dateText : styles.placeholderText}>
+          <Text style={startDate ? [styles.dateText, { color: theme.text }] : [styles.placeholderText, { color: theme.textMuted }]}>
             {startDate || 'Select start date'}
           </Text>
         </TouchableOpacity>
@@ -149,21 +148,23 @@ export default function AddTripScreen() {
             }}
             markedDates={
               startDate
-                ? { [toCalendarDate(startDate)]: { selected: true, selectedColor: '#2980B9' } }
+                ? { [toCalendarDate(startDate)]: { selected: true, selectedColor: theme.primary } }
                 : {}
             }
             theme={{
-              todayTextColor: '#2980B9',
-              arrowColor: '#2980B9',
+              todayTextColor: theme.primary,
+              arrowColor: theme.primary,
+              calendarBackground: theme.card,
+              dayTextColor: theme.text,
+              monthTextColor: theme.text,
             }}
-            style={styles.calendar}
+            style={[styles.calendar, { backgroundColor: theme.card }]}
           />
         )}
 
-        {/* End Date */}
-        <Text style={styles.label}>End Date</Text>
+        <Text style={[styles.label, { color: theme.text }]}>End Date</Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
           onPress={() => {
             if (!startDate) {
               Alert.alert('Error', 'Please select a start date first.');
@@ -173,7 +174,7 @@ export default function AddTripScreen() {
             setShowStartCalendar(false);
           }}
         >
-          <Text style={endDate ? styles.dateText : styles.placeholderText}>
+          <Text style={endDate ? [styles.dateText, { color: theme.text }] : [styles.placeholderText, { color: theme.textMuted }]}>
             {endDate || 'Select end date'}
           </Text>
         </TouchableOpacity>
@@ -192,20 +193,21 @@ export default function AddTripScreen() {
             minDate={toCalendarDate(startDate)}
             markedDates={
               endDate
-                ? { [toCalendarDate(endDate)]: { selected: true, selectedColor: '#2980B9' } }
+                ? { [toCalendarDate(endDate)]: { selected: true, selectedColor: theme.primary } }
                 : {}
             }
             theme={{
-              todayTextColor: '#2980B9',
-              arrowColor: '#2980B9',
+              todayTextColor: theme.primary,
+              arrowColor: theme.primary,
+              calendarBackground: theme.card,
+              dayTextColor: theme.text,
+              monthTextColor: theme.text,
             }}
-            style={styles.calendar}
+            style={[styles.calendar, { backgroundColor: theme.card }]}
           />
         )}
 
-        {/* Claude - "Help me implement Google Places API into the location search" */}
-        {/* Location Search */}
-        <Text style={styles.label}>Location</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Location</Text>
         <GooglePlacesAutocomplete
           ref={placesRef}
           placeholder="Search for a city..."
@@ -227,11 +229,11 @@ export default function AddTripScreen() {
           listViewDisplayed="auto"
           keyboardShouldPersistTaps="handled"
           styles={{
-            textInput: styles.input,
+            textInput: [styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }],
             container: { flex: 0 },
-            listView: styles.predictionsContainer,
+            listView: [styles.predictionsContainer, { backgroundColor: theme.card, borderColor: theme.border }],
             row: styles.predictionItem,
-            description: styles.predictionText,
+            description: [styles.predictionText, { color: theme.text }],
           }}
           enablePoweredByContainer={false}
         />
@@ -242,7 +244,7 @@ export default function AddTripScreen() {
           </View>
         )}
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Trip</Text>
         </TouchableOpacity>
       </View>

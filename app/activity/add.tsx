@@ -2,13 +2,13 @@ import Constants from 'expo-constants';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useRef, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { db } from '../../db/client';
@@ -36,7 +36,7 @@ export default function AddActivityScreen() {
   } | null>(null);
 
   if (!context) return null;
-  const { tripsList, categoriesList, refreshData } = context;
+  const { tripsList, categoriesList, refreshData, userId } = context;
 
   const trip = tripsList.find((t) => t.id === tripIdNum);
   if (!trip) return null;
@@ -71,7 +71,7 @@ export default function AddActivityScreen() {
           name: selectedPlace.name,
           latitude: selectedPlace.lat,
           longitude: selectedPlace.lng,
-          userId: 1,
+          userId: userId,
         }).returning();
         locationId = locationResult[0].id;
       }
@@ -85,7 +85,7 @@ export default function AddActivityScreen() {
         tripId: tripIdNum,
         categoryId: selectedCategoryId,
         locationId: locationId,
-        userId: 1,
+        userId: userId,
       });
 
       await refreshData();

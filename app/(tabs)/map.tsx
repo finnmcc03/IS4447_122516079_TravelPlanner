@@ -1,9 +1,9 @@
+import Constants from 'expo-constants';
 import { useContext, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapView, { Marker } from 'react-native-maps';
 import { AppContext } from '../_layout';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import Constants from 'expo-constants';
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey || '';
 
@@ -222,14 +222,12 @@ export default function MapScreen() {
         ))}
       </ScrollView>
 
+      {/* Claude - "help me implement Google maps visibility using the same API as location search" */}
       {/* Map */}
       {filteredActivities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>No activities found</Text>
           <Text style={styles.emptySubtitle}>
-            {searchQuery || selectedCategoryId !== null
-              ? 'Try a different search or filter'
-              : 'Add activities with locations to see them on the map'}
           </Text>
         </View>
       ) : (
@@ -242,7 +240,6 @@ export default function MapScreen() {
             zoomEnabled={true}
             scrollEnabled={true}
             rotateEnabled={true}
-            zoomControlsEnabled={false}
             onPress={() => setSelectedActivity(null)}
           >
             {filteredActivities.map((activity) => (
@@ -298,7 +295,7 @@ export default function MapScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Bottom Card - shows when a marker is tapped */}
+          {/* Bottom Card */}
           {selectedActivity && (
             <View style={styles.bottomCard}>
               <Pressable
@@ -362,7 +359,7 @@ export default function MapScreen() {
             </View>
           )}
 
-          {/* Legend - hide when card is showing */}
+          {/* Legend */}
           {!selectedActivity && (
             <View style={styles.legend}>
               {categoriesList.map((cat) => {

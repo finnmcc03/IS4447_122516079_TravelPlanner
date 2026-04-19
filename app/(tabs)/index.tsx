@@ -121,7 +121,6 @@ export default function TripsScreen() {
 
       {filteredTrips.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>✈️</Text>
           <Text style={styles.emptyTitle}>No trips yet</Text>
           <Text style={styles.emptySubtitle}>Tap the button below to plan your first adventure!</Text>
         </View>
@@ -161,6 +160,7 @@ export default function TripsScreen() {
   );
 }
 
+// Claude - "Design a frontend page for a travel planner app lists user trips"
 const styles = StyleSheet.create({
   container: {
     flex: 1,

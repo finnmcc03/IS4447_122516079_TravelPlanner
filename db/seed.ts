@@ -5,8 +5,10 @@ import { activities, categories, locations, targets, trips } from './schema';
 
 export async function seedDatabase(userId: number) {
   // Check if this user already has data
-  const existingTrips = await db.select().from(trips);
-  if (existingTrips.length > 0) return;
+const existingCategories = await db.select().from(categories);
+// Claude - SS of categories not appearing in add activites, "Why are the categories not appearing anymore"
+const userCategories = existingCategories.filter((c: any) => c.userId === userId);
+if (userCategories.length > 0) return;
 
   // Seed categories
   await db.insert(categories).values([

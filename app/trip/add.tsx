@@ -28,6 +28,7 @@ export default function AddTripScreen() {
   const [endDate, setEndDate] = useState('');
   const [showStartCalendar, setShowStartCalendar] = useState(false);
   const [showEndCalendar, setShowEndCalendar] = useState(false);
+  
 
   // Location state
   const [selectedPlace, setSelectedPlace] = useState<{
@@ -37,7 +38,7 @@ export default function AddTripScreen() {
   } | null>(null);
 
   if (!context) return null;
-  const { refreshData } = context;
+  const { refreshData, userId } = context;
 
   // Convert YYYY-MM-DD (calendar format) to DD-MM-YYYY (storage format)
   const toDisplayDate = (calendarDate: string) => {
@@ -76,7 +77,7 @@ export default function AddTripScreen() {
         name: selectedPlace.name,
         latitude: selectedPlace.lat,
         longitude: selectedPlace.lng,
-        userId: 1,
+        userId: userId,
       }).returning();
 
       // Insert trip
@@ -85,7 +86,7 @@ export default function AddTripScreen() {
         startDate: startDate,
         endDate: endDate,
         locationId: locationResult[0].id,
-        userId: 1,
+        userId: userId,
       });
 
       await refreshData();
@@ -202,6 +203,7 @@ export default function AddTripScreen() {
           />
         )}
 
+        {/* Claude - "Help me implement Google Places API into the location search" */}
         {/* Location Search */}
         <Text style={styles.label}>Location</Text>
         <GooglePlacesAutocomplete

@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 import { useContext } from 'react';
-import { Text } from 'react-native';
 import { AppContext } from '../_layout';
 
 export default function TabLayout() {
@@ -12,13 +11,23 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: theme?.primary || '#2980B9',
         tabBarInactiveTintColor: theme?.textMuted || '#999',
+        tabBarLabelStyle: {
+          fontSize: 16,
+          fontWeight: '600',
+          marginTop: 0,
+          marginBottom: 0,
+        },
         tabBarStyle: {
           backgroundColor: theme?.tabBar || '#fff',
           borderTopWidth: 1,
           borderTopColor: theme?.tabBarBorder || '#eee',
-          paddingBottom: 5,
+          paddingBottom: 0,
           paddingTop: 5,
-          height: 60,
+          height: 50,
+          justifyContent: 'center',
+        },
+        tabBarIconStyle: {
+          display: 'none',
         },
         headerStyle: {
           backgroundColor: theme?.headerBackground || '#2980B9',
@@ -34,28 +43,28 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'My Trips',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}></Text>,
+          tabBarIcon: () => null,
         }}
       />
       <Tabs.Screen
         name="map"
         options={{
           title: 'Map',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}></Text>,
+          tabBarIcon: () => null,
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
           title: 'Insights',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}></Text>,
+          tabBarIcon: () => null,
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}></Text>,
+          tabBarIcon: () => null,
         }}
       />
     </Tabs>

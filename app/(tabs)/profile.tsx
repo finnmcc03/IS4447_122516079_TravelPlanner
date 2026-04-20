@@ -1,6 +1,8 @@
 import { eq } from 'drizzle-orm';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { useContext, useState } from 'react';
-import { Alert, ScrollView, Share, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { db } from '../../db/client';
 import { users } from '../../db/schema';
 import { AppContext } from '../_layout';
@@ -115,6 +117,7 @@ export default function ProfileScreen() {
   };
 
   // Export data as CSV
+  // Claude - providing broken code "help me fix this error regarding expo-file-system and expo-sharing and documentDirectory"
   const handleExportCSV = async () => {
     try {
       let csv = 'Trip,Activity,Day,Duration (hours),Category,Location,Completed,Notes\n';
@@ -136,9 +139,18 @@ export default function ProfileScreen() {
         csv += `${tripName},${activityName},Day ${activity.dayNumber},${activity.duration},${categoryName},${locationName},${completed},${notes}\n`;
       });
 
-      await Share.share({
-        message: csv,
-        title: 'Travel Planner Export',
+      const fileUri = FileSystem.documentDirectory + 'travel_planner_export.csv';
+      await FileSystem.writeAsStringAsync(fileUri, csv);
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        Alert.alert('Error', 'Sharing is not available on this device.');
+        return;
+      }
+
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Export Travel Data',
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to export data.');

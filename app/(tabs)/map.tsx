@@ -101,6 +101,7 @@ export default function MapScreen() {
 
   const [currentRegion, setCurrentRegion] = useState(initialRegion);
 
+  // Claude - "Why are the activity dots not fixed and not zooming in on location when selected?"
   // Zoom to fit filtered activities
   const zoomToFitFiltered = () => {
     if (filteredActivities.length === 0) return;
@@ -222,7 +223,7 @@ export default function MapScreen() {
         ))}
       </ScrollView>
 
-      {/* Map - always visible */}
+      {/* Map */}
       <MapView
         ref={mapRef}
         style={styles.map}

@@ -3,6 +3,7 @@ import { openDatabaseSync } from 'expo-sqlite';
 
 const sqlite = openDatabaseSync('tripplanner.db');
 
+// Claude - "Give me the SQLite code for creating table for Categories, Locations, Trips, Activities and Targets 
 // Create all tables on startup
 sqlite.execSync(`
 

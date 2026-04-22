@@ -244,19 +244,6 @@ export default function ProfileScreen() {
 
           <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
             <View>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>Enable Notifications</Text>
-              <Text style={[styles.settingDescription, { color: theme.textMuted }]}>Get reminders before activities</Text>
-            </View>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: theme.border, true: theme.primary }}
-              thumbColor="#fff"
-            />
-          </View>
-
-          <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-            <View>
               <Text style={[styles.settingLabel, { color: theme.text }]}>Dark Mode</Text>
               <Text style={[styles.settingDescription, { color: theme.textMuted }]}>Switch to dark theme</Text>
             </View>

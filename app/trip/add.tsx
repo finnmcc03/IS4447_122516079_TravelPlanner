@@ -40,6 +40,7 @@ export default function AddTripScreen() {
   if (!context) return null;
   const { refreshData, userId, theme } = context;
 
+  //Claude - "Why is the date let in the format YYYY-MM-DD"
   // Convert YYYY-MM-DD (calendar format) to DD-MM-YYYY (storage format)
   const toDisplayDate = (calendarDate: string) => {
     const [year, month, day] = calendarDate.split('-');

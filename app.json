@@ -15,8 +15,12 @@
         "projectId": "74e7368c-8886-46c3-9b91-dda8faf2885c"
       }
     },
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDePpq5y0hJpJFo6vkcHnr3ZJK5AkeVb9k"
+      }
     },
     "android": {
       "config": {
